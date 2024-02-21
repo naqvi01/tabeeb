@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "508013717827",
+    "project_id": "zakat-e48f2",
+    "storage_bucket": "zakat-e48f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508013717827:android:ade1ba5eeeb86d018467f6",
+        "android_client_info": {
+          "package_name": "com.example.zakatrebuild"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtZW1d7WXu60fkbpYSUjVvXCr5g5Icjdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
