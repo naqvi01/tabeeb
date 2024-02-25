@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:avatar_glow/avatar_glow.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class DoctorsGpt extends StatefulWidget {
   const DoctorsGpt({super.key});
@@ -28,6 +32,28 @@ class _DoctorsGptState extends State<DoctorsGpt> {
   String _responsebody = "";
   bool _isSending = false;
   XFile? _image;
+  bool startRecord = false;
+  final SpeechToText speech = SpeechToText();
+  bool inAvailable = false;
+
+  @override
+  void initState() {
+    make();
+    // TODO: implement initState
+    super.initState();
+  }
+
+  make() async {
+    inAvailable = await speech.initialize();
+    setState(() {});
+  }
+
+  FlutterTts flutterTts = FlutterTts();
+  speak() async {
+    await flutterTts.speak(_responsebody);
+    flutterTts.setLanguage("hi-IN");
+  }
+
   Future<void> _getimagefromcamera() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
@@ -44,7 +70,7 @@ class _DoctorsGptState extends State<DoctorsGpt> {
       ], uiSettings: [
         AndroidUiSettings(
             toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
+            toolbarColor: Theme.of(context).primaryColor,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: false),
@@ -142,17 +168,37 @@ class _DoctorsGptState extends State<DoctorsGpt> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20),
-            child: IconButton(
-                onPressed: () {
-                  setState(() {
-                    _responsebody = "";
-                    _image = null;
-                    customPrompt = '';
-                  });
-                },
-                icon: Icon(
-                  Icons.refresh,
-                )),
+            child: Row(
+              children: [
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _responsebody = "";
+                        _image = null;
+                        customPrompt = '';
+                      });
+                    },
+                    icon: Icon(
+                      Icons.refresh,
+                    )),
+                IconButton(
+                    onPressed: () {
+                      speak();
+                    },
+                    icon: Icon(
+                      Icons.volume_down,
+                      size: 30,
+                    )),
+                IconButton(
+                    onPressed: () {
+                      flutterTts.stop();
+                    },
+                    icon: Icon(
+                      Icons.volume_off,
+                      size: 27,
+                    )),
+              ],
+            ),
           )
         ],
         title: Text(
@@ -233,14 +279,46 @@ class _DoctorsGptState extends State<DoctorsGpt> {
                   borderRadius: BorderRadius.circular(50)),
               height: 60,
               width: double.infinity,
-              child: TextField(
-                decoration: InputDecoration(
-                    label: Text(
-                  'Custom Prompt',
-                  style: TextStyle(color: Colors.black),
-                )),
-                controller: _controller,
-                onChanged: (value) => customPrompt = value,
+              child: Center(
+                child: TextField(
+                  decoration: InputDecoration(
+                      suffixIcon: AvatarGlow(
+                          animate: startRecord,
+                          glowColor: Theme.of(context).primaryColor,
+                          child: GestureDetector(
+                              onTapDown: (value) {
+                                flutterTts.stop();
+
+                                setState(() {
+                                  startRecord = true;
+                                });
+                                if (inAvailable) {
+                                  speech.listen(onResult: (value) {
+                                    setState(() {
+                                      customPrompt = value.recognizedWords;
+                                      _controller.text = value.recognizedWords;
+                                    });
+                                  });
+                                }
+                              },
+                              onTapUp: (value) {
+                                setState(() {
+                                  startRecord = false;
+                                });
+                                speech.stop();
+                              },
+                              child: Icon(
+                                Icons.mic,
+                                color: Colors.white,
+                              ))),
+                      hintText: 'Custom Prompt',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                      )),
+                  controller: _controller,
+                  onChanged: (value) => customPrompt = value,
+                ),
               ),
             ),
           ),

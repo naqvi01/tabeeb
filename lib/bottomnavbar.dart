@@ -5,8 +5,6 @@ import 'package:get/get.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:zakatrebuild/screens/doctorsgpt.dart';
 import 'package:zakatrebuild/screens/homescreen.dart';
-import 'package:zakatrebuild/screens/mapsscreen.dart';
-import 'package:zakatrebuild/screens/subscriptionscreen.dart';
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key});

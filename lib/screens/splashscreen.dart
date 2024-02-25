@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import 'package:lottie/lottie.dart';
 import 'package:zakatrebuild/bottomnavbar.dart';
-import 'package:zakatrebuild/screens/mapsscreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
